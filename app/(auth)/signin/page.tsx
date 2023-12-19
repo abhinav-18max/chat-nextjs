@@ -16,6 +16,13 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import colors from "tailwindcss/colors";
+import {login} from "@/app/api/_regUser";
+import axios from "axios";
+import {useRouter} from "next/navigation";
+import {useToast} from "@/components/ui/use-toast";
+import {withRouter} from "next/router";
+import {signIn} from "next-auth/react";
+const API_URL = process.env.NEXT_PUBLIC_API_ROUTE
 
 const formSchema = z.object({
     username: z.string().min(2, {
@@ -26,6 +33,8 @@ const formSchema = z.object({
     })
 })
 export default function Auth(){
+    const router = useRouter();
+    const {toast} = useToast();
     const form = useForm({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -36,8 +45,37 @@ export default function Auth(){
         });
 
     const onSubmit = async (values:any) => {
-        alert(JSON.stringify(values))
+        // alert(JSON.stringify(values))
+        try{
+           const res= await signIn('credentials', {
+               email: values.username,
+               password: values.password,
+               redirect: false,
+           })
+            if (res.ok) {
+                // console.log(res)
+                router.push('/chat')
+            }
+            else{
+                toast({
+                    title: "Invalid Credentials",
+                    description:"Please check your credentials",
+
+                })
+            }
+
+        }
+        catch(e){
+            toast({
+                title: "Invalid Credentials",
+                description: "Please check your credentials",
+
+            })
+        }
+
+
     }
+
     return(
         <>
 
@@ -77,7 +115,7 @@ export default function Auth(){
                             )}
                         />
 
-                        <Button type="submit" className="bg-black mt-6 hover:bg-black rounded-2xl w-1/4">Login</Button>
+                        <Button type="submit" className="bg-black mt-6 hover:bg-black rounded-2xl w-1/4 text-white">Login</Button>
                     </form>
                 </Form>
 

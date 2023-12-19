@@ -2,6 +2,7 @@
 import '../globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { Toaster} from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -18,8 +19,9 @@ export default function AuthLayout({
   return (
     <html lang="en">
       <body>
-      <main className="h-screen flex flex-col justify-center items-center">
+      <main className="h-screen flex flex-col justify-center items-center text-black">
       {children}
+          <Toaster/>
       </main>
       </body>
     </html>

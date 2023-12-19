@@ -2,6 +2,8 @@
 import '../globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import Provider from "@/lib/authProvider";
+
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,7 +21,9 @@ export default function AuthLayout({
     <html lang="en">
       <body>
       <main className="h-screen flex flex-col">
-      {children}
+         <Provider>
+                {children}
+         </Provider>
       </main>
       </body>
     </html>
