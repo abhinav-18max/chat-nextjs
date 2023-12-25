@@ -52,6 +52,7 @@ export default function Auth(){
                password: values.password,
                redirect: false,
            })
+           // console.log(res)
             if (res.ok) {
                 // console.log(res)
                 router.push('/chat')

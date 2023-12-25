@@ -1,48 +1,79 @@
-import NextAuth, { Awaitable, RequestInternal, User } from "next-auth";
+
+import NextAuth, {Awaitable, RequestInternal, User} from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import {NextApiRequest, NextApiResponse} from "next";
+import { cookies } from "next/headers";
+// @ts-ignore
+import { parse } from "cookie";
 
 // @ts-ignore
 // @ts-ignore
-  export const Options = {
-    providers: [CredentialsProvider({
-        name: "Credentials", credentials: {
-            email: {label: "email", type: "email", placeholder: "jsmith"},
-            password: {label: "Password", type: "password"}
+// @ts-ignore
+// @ts-ignore
+// @ts-ignore
+export const Options = (req,res) =>{
+
+    return{
+        providers: [CredentialsProvider({
+            name: "Credentials",
+            credentials: {
+                email: {label: "email", type: "email", placeholder: "jsmith"},
+                password: {label: "Password", type: "password"}
+            },
+            authorize: async function (credentials: Record<"username" | "password", string> | undefined, req: Pick<RequestInternal, "body" | "query" | "headers" | "method">): Promise<User | null>{
+                try {
+                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_ROUTE}/auth/login`, {
+                        method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(credentials)
+                    })
+
+                    const apiCookies = response.headers.get("Set-Cookie");
+                    if (apiCookies && apiCookies.length > 0) {
+                        // @ts-ignore
+                           const cookie = apiCookies;
+                            const parsedCookie = parse(cookie);
+                            const [cookieName, cookieValue] =
+                                Object.entries(parsedCookie)[0];
+                            const httpOnly = cookie.includes("httponly;");
+
+                            // @ts-ignore
+                        cookies().set({
+                                name: cookieName,
+                                value: cookieValue,
+                                httpOnly: httpOnly,
+                                maxAge: parseInt(parsedCookie["Max-Age"]),
+                                path: parsedCookie.path,
+                                sameSite: parsedCookie.samesite,
+                                expires: new Date(parsedCookie.expires),
+                                secure: true,
+                        });
+
+                    }
+
+                    const user_ = await response.json();
+                    const user = {...user_?.user, cookies}
+                    // console.log(user)
+                    if (response.status === 201 && user) {
+
+                        return user;
+                    } else {
+                        return null;
+                    }
+                } catch (e) {
+                    console.log(e)
+                }
+
+
+            },
+
+        })],
+        pages: {
+            signIn: "/signin", error: "/signin",
         },
-        authorize: async function (credentials: Record<"username" | "password", string> | undefined, req: Pick<RequestInternal, "body" | "query" | "headers" | "method">): Awaitable<User | null> {
-
-            const res= await fetch(`${process.env.NEXT_PUBLIC_API_ROUTE}/auth/login`, {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(credentials)
-            })
-            const user_= await res.json();
-            const user= user_?.user;
-            if (res.status===201 && user){
-                console.log(user);
-                return user;
-            }
-            else{
-             return null;
-            }
-
-        },
-
-    })],
-    pages:{
-        signIn: "/signin",
-        error: "/signin",
-    },
-    callbacks: {
-        onError: async (error:any) => {
-            if (error.message === "Invalid credentials") {
-                setTimeout(() => {
-                  console.log("hiiiii eroor incorrect")
-                }, 5000)
-                return false;
-            }
-        }
     }
+
+
+};
+const handler = (req: NextApiRequest, res: NextApiResponse) => {
+    return NextAuth(req, res, Options(req,res));
 }
-const handler= NextAuth(Options);
-export  {handler as GET, handler as POST}
+export {handler as GET, handler as POST}
