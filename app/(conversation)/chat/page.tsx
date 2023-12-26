@@ -13,15 +13,16 @@ export default function Chat() {
             redirect('/signin')
         }
     })
-    useEffect(() => {
-            axios.get(`${process.env.NEXT_PUBLIC_API_ROUTE}/auth/profile`, {withCredentials: true}).then(res => console.log(res.data)).catch(e => console.log(e))
-    })
+    console.log(user?.data?.user)
+
 
     return (<>
 
         <div className="flex flex-row h-screen bg-[#374151]">
             <Sidebar/>
-            nlknlkn
+            {user?.data?.user?.email}
+
+
 
         </div>
 

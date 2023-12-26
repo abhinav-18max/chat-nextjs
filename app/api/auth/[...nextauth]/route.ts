@@ -50,11 +50,11 @@ export const Options = (req,res) =>{
                     }
 
                     const user_ = await response.json();
-                    const user = {...user_?.user, cookies}
-                    // console.log(user)
+                    const user = user_?.user;
+                    console.log(user)
                     if (response.status === 201 && user) {
 
-                        return user;
+                        return {...user}
                     } else {
                         return null;
                     }
