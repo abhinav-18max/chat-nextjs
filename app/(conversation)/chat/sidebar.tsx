@@ -12,13 +12,17 @@ import { Input } from "@/components/ui/input"
 import {Label} from "@/components/ui/label";
 import {Textarea} from "@/components/ui/textarea";
 import {Button} from "@/components/ui/button";
-import {useRef} from "react";
+import React, {useRef} from "react";
+import {useSession} from "next-auth/react";
+import Box from "@/app/(conversation)/chat/box";
 
 
 
-export default function Sidebar(){
+export default function Sidebar(conversions:any){
     const receipent= useRef<HTMLInputElement | undefined>()
     const msg=useRef<HTMLTextAreaElement | undefined>();
+
+    const {data: session, status} = useSession();
     const submitdata=(e:any)=>{
         e.preventDefault();
         const rece= receipent.current?.value
@@ -26,16 +30,14 @@ export default function Sidebar(){
         alert(JSON.stringify({rece,msgs}))
 
     }
-
-    // @ts-ignore
-    // @ts-ignore
+    const data=conversions.conversions;
     return(<>
-        <div className="bg-white h-screen w-1/5">
-            <div className="flex flex-row justify-evenly items-center mt-3.5 rounded-lg shadow-2xl shadow-emerald-500">
-                <h1 className="text-black text-xl font-bold">Conversation</h1>
+        <div className="bg-black h-screen w-1/5">
+            <div className="flex flex-row justify-evenly items-center mt-3.5 rounded-lg shadow-lg shadow-emerald-150">
+                <h1 className="text-white text-xl font-bold">Conversation</h1>
                 <Dialog>
                     <DialogTrigger asChild>
-                        <TbEdit size={40} className="stroke-black"/>
+                        <TbEdit size={40} className="stroke-white"/>
                     </DialogTrigger>
                     <DialogContent className="w-1/3 h-1/3 rounded-2xl bg-blend-darken rounded-3xl">
                         <DialogHeader className="font-extrabold text-4xl">
@@ -63,6 +65,14 @@ export default function Sidebar(){
                 </Dialog>
 
 
+            </div>
+            <div className="h-5/6 flex flex-col justify-start items-center text-white">
+
+                {data.map((convo:any)=>{
+                    // eslint-disable-next-line react/jsx-key
+                    return <Box conversion={convo} />
+                    })
+                }
             </div>
 
         </div>

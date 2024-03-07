@@ -65,7 +65,27 @@ export const Options = (req,res) =>{
 
             },
 
-        })],
+        })],callbacks: {
+            async jwt({ token, user,trigger,session}):Promise<any>{
+                if(user){
+                    token.id = user.id;
+                    token.user= user.user;
+                    token.email = user.email;
+
+                }
+                return token;
+            },
+            async session({ session, token }):Promise<any> {
+                if(token){
+                    session.id = token.id;
+                    session.user = token.user;
+                    session.user = token.email;
+
+                }
+                return session;
+            }
+
+        },
         pages: {
             signIn: "/signin", error: "/signin",
         },

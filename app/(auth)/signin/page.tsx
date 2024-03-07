@@ -33,6 +33,7 @@ const formSchema = z.object({
     })
 })
 export default function Auth(){
+    const API_URL = process.env.NEXT_PUBLIC_API_ROUTE;
     const router = useRouter();
     const {toast} = useToast();
     const form = useForm({
@@ -52,8 +53,13 @@ export default function Auth(){
                password: values.password,
                redirect: false,
            })
-           // console.log(res)
-            if (res.ok) {
+            const res1=  await fetch(`${process.env.NEXT_PUBLIC_API_ROUTE}/auth/login`, {
+                method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+                    email: values.username,
+                    password: values.password,
+                })
+            })
+            if (res.ok && res1.status===201) {
                 // console.log(res)
                 router.push('/chat')
             }
